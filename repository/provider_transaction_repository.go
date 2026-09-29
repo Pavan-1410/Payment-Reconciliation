@@ -10,8 +10,8 @@ type ProviderTransactionRepository struct {
 	DB *gorm.DB
 }
 
-func (r *ProviderTransactionRepository) CreateTransaction (transaction *models.ProviderTransaction) error{
-	return r.DB.Create(transaction).Error
+func (r *ProviderTransactionRepository) CreateTransaction (tx *gorm.DB,transaction *models.ProviderTransaction) error{
+	return tx.Create(transaction).Error
 }
 
 func (r *ProviderTransactionRepository) FindByPaymentId (paymentId int) ([]models.ProviderTransaction, error)	{//we not use * ptrr for []model.slice because A slice already behaves like a descriptor pointing to an underlying array:

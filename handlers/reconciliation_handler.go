@@ -3,13 +3,16 @@ package handlers
 import (
 	"net/http"
 
+	"payment_reconciliation/models"
 	"payment_reconciliation/services"
+	"payment_reconciliation/workers"
 
 	"github.com/gin-gonic/gin"
 )
 
 type ReconciliationHandler struct {
 	ReconciliationService *services.ReconciliationService
+	WorkerPool            *workers.ReconciliationWorkerPool
 }
 
 func (h *ReconciliationHandler) Reconcile(c *gin.Context) {
@@ -23,7 +26,7 @@ func (h *ReconciliationHandler) Reconcile(c *gin.Context) {
 		return
 	}
 
-	job, err := h.ReconciliationService.Reconcile(reportID)
+	job, err := h.ReconciliationService.StartReconciliation(reportID)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -31,6 +34,12 @@ func (h *ReconciliationHandler) Reconcile(c *gin.Context) {
 		})
 		return
 	}
+	h.WorkerPool.Submit(
+		workers.ReconciliationJobData{
+			Job:              job,
+			ReportTransactions:[]models.ProviderReportTransaction{},
+		},
+	)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "reconciliation completed successfully",

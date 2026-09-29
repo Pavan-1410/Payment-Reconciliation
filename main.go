@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"payment_reconciliation/config"
 	"payment_reconciliation/handlers"
@@ -8,6 +9,7 @@ import (
 	"payment_reconciliation/repository"
 	"payment_reconciliation/routes"
 	"payment_reconciliation/services"
+	"payment_reconciliation/workers"
 
 	"github.com/gin-gonic/gin"
 )
@@ -103,9 +105,24 @@ func main() {
 		ProviderTransactionRepo: providerTransactionrepo,
 	}
 
+
+	// workpool dependency
+
+	workerPool := &workers.ReconciliationWorkerPool{
+	JobQueue:              make(chan workers.ReconciliationJobData, 100),
+	WorkerCount:           3,
+	ReconciliationService: reconcialitionService,
+	}
+
 	reconcialitionHandlers := &handlers.ReconciliationHandler{
 		ReconciliationService : reconcialitionService,
+		 WorkerPool:            workerPool,
 	}
+	// satrting the work pool
+	ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+
+	workerPool.Start(ctx)
 	r := gin.Default()
 
 	routes.AuthRouter(r,authHandler)

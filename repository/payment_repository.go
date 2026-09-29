@@ -39,6 +39,6 @@ func (r *PaymentRepository) FindByID (paymentID int) (*models.Payment, error) {
 	return &payment, nil
 }
 
-func (r *PaymentRepository) UpdatePayment (payment *models.Payment) error {
-	return r.DB.Save(payment).Error
+func (r *PaymentRepository) UpdatePayment (tx *gorm.DB,payment *models.Payment) error {
+	return tx.Save(payment).Error
 }
