@@ -1,14 +1,16 @@
 package models
-import "time"
-// it stores the comparison of our DB payment data and provider report only stats
-type ProviderTransaction struct {
-	ID              int       `gorm:"primaryKey;autoIncrement"`
-	PaymentID       int       `gorm:"not null;index"`
-	ProviderRef     string    `gorm:"type:varchar(255);uniqueIndex"`
-	AttemptNumber   int       `gorm:"not null"`
-	Status          string    `gorm:"type:varchar(20);not null"`
-	FailureReason   string    `gorm:"type:text"`
-	CreatedAt       time.Time
 
-	Payment Payment `gorm:"foreignKey:PaymentID;references:ID"`
-}
+// import "time"
+
+// type Reconciliation struct {
+// 	ID                          int       `gorm:"primaryKey;autoIncrement"`
+// 	ReconciliationJobID        int       `gorm:"not null;index"`
+// 	ProviderReportTransactionID int       `gorm:"not null;index"`
+// 	ProviderTransactionID      *int      `gorm:"index"`
+// 	Result                     string    `gorm:"type:varchar(50);not null"`
+// 	Details                    string    `gorm:"type:text"`
+// 	CreatedAt                  time.Time
+
+// 	Job                       ReconciliationJob
+// 	ProviderReportTransaction ProviderReportTransaction
+// }

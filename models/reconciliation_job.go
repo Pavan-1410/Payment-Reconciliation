@@ -7,7 +7,7 @@ type ReconciliationJob struct {
 	Status      string     `gorm:"type:varchar(20);not null;default:'pending';index"`
 	StartedAt   *time.Time
 	CompletedAt *time.Time
-	Error       string     `gorm:"type:text"`
+	Error       string     `gorm:"type:text"`	// failed to load provider transactions	Technical failure of the reconciliation process
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
