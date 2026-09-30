@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"payment_reconciliation/config"
 	"payment_reconciliation/handlers"
 	"payment_reconciliation/models"
@@ -132,7 +133,13 @@ defer cancel()
 	routes.ProviderReportRoutes(r,providerReportHandler)
 	routes.ReconciliationRoutes(r,reconcialitionHandlers)
 
-	r.Run(":8080")
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
+	r.Run(":" + port)
 }
 
 // this is the main changes that are goin to staging
