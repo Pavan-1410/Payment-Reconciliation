@@ -1,8 +1,8 @@
 package dto
 
 type CreatePaymentRequest struct {
-	Amount         string `json:"amount" binding:"required"`
-	IdempotencyKey string `json:"idempotency_key" binding:"required"`
+	Amount         string `json:"amount" binding:"required" example:"500.00"`
+	IdempotencyKey string `json:"idempotency_key" binding:"required" example:"PAY-TEST-001"`
 }
 
 type PaymentResponce struct{

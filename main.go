@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"payment_reconciliation/config"
 	"payment_reconciliation/handlers"
 	"payment_reconciliation/models"
@@ -12,8 +13,22 @@ import (
 	"payment_reconciliation/workers"
 
 	"github.com/gin-gonic/gin"
+
+	// swagger imports
+	_ "payment_reconciliation/docs"
+
+    "github.com/swaggo/gin-swagger"
+    "github.com/swaggo/files"
 )
 
+// @title Payment Processing & Reconciliation API
+// @version 1.0
+// @description REST API for payment processing and reconciliation.
+// @host localhost:8080
+// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 
 	config.ConnectDatabase()
@@ -66,8 +81,9 @@ func main() {
 	}
 
 	providerTransactionService := &services.ProviderTransactionServices{
+		DB:                      config.DB,
 		ProviderTransactionRepo: providerTransactionrepo,
-		PaymentRepo: paymentRepo,
+		PaymentRepo:             paymentRepo,
 	}
 
 	providerTransactionHandler := &handlers.ProviderTransactionHandler{
@@ -124,6 +140,8 @@ defer cancel()
 
 	workerPool.Start(ctx)
 	r := gin.Default()
+	// swagger endpoint
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	routes.AuthRouter(r,authHandler)
 	routes.PaymentRouter(r,paymentHandler)
@@ -131,7 +149,13 @@ defer cancel()
 	routes.ProviderReportRoutes(r,providerReportHandler)
 	routes.ReconciliationRoutes(r,reconcialitionHandlers)
 
-	r.Run(":8080")
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8080"
+	}
+
+	r.Run(":" + port)
 }
 
 // this is the main changes that are goin to staging
