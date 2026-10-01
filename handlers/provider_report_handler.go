@@ -16,7 +16,7 @@ type ProviderReportHandler struct {
 // ImportReport godoc
 // @Summary Import provider report
 // @Description Imports simulated payment provider transaction records for reconciliation
-// @Tags 5. Provider Reports
+// @Tags Provider Reports
 // @Accept json
 // @Produce json
 // @Security BearerAuth

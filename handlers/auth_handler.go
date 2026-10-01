@@ -15,7 +15,7 @@ type AuthHandler struct {
 // Welcome godoc
 // @Summary Welcome to Payment Reconciliation API
 // @Description Returns a welcome message for the API
-// @Tags 1. General
+// @Tags General
 // @Produce json
 // @Success 200 {object} map[string]string
 // @Router /api/auth/ [get]
@@ -27,7 +27,7 @@ func Welcome(c *gin.Context){
 // Register godoc
 // @Summary Register a new user
 // @Description Creates a new user account
-// @Tags 2. Authentication
+// @Tags Authentication
 // @Accept json
 // @Produce json
 // @Param request body dto.RegisterRequest true "Registration details"
@@ -67,7 +67,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // Login godoc
 // @Summary Login user
 // @Description Authenticates a user and returns a JWT token
-// @Tags 2. Authentication
+// @Tags Authentication
 // @Accept json
 // @Produce json
 // @Param request body dto.LoginRequest true "Login credentials"

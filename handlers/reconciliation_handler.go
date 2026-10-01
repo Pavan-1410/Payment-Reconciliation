@@ -18,7 +18,7 @@ type ReconciliationHandler struct {
 // Reconcile godoc
 // @Summary Reconcile provider report
 // @Description Compares provider report transactions with internal payment records and generates reconciliation results
-// @Tags 6. Reconciliation
+// @Tags Reconciliation
 // @Accept json
 // @Produce json
 // @Security BearerAuth

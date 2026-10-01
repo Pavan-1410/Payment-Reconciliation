@@ -15,7 +15,7 @@ type ProviderTransactionHandler struct {
 // ProcessPayment godoc
 // @Summary Process a payment
 // @Description Processes a pending payment and updates its status
-// @Tags 4. Transaction
+// @Tags Transaction
 // @Accept json
 // @Produce json
 // @Security BearerAuth

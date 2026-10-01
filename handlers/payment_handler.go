@@ -15,7 +15,7 @@ type PaymentHandler struct {
 // CreatePayment godoc
 // @Summary Create a payment
 // @Description Creates a new payment request for the authenticated user
-// @Tags 3. Payments
+// @Tags Payments
 // @Accept json
 // @Produce json
 // @Security BearerAuth
