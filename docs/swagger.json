@@ -9,7 +9,7 @@
         "contact": {},
         "version": "1.0.1"
     },
-    "host": "https://payment-reconciliatio-api.onrender.com",
+    "host": "payment-reconciliatio-api.onrender.com",
     "basePath": "/",
     "paths": {
         "/api/auth/": {

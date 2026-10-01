@@ -139,7 +139,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-host: https://payment-reconciliatio-api.onrender.com
+host: payment-reconciliatio-api.onrender.com
 info:
   contact: {}
   description: REST API for payment processing and reconciliation.
