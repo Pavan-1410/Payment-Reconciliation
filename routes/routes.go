@@ -10,12 +10,8 @@ import (
 func AuthRouter(routes *gin.Engine, authhandler *handlers.AuthHandler){
 	auth := routes.Group("/api/auth")
 	
-	auth.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Welcome to New Project API",
-		})
-	})
 
+	auth.GET("/",handlers.Welcome)
 	auth.POST("/register",authhandler.Register)	// we need to call using struct instance
 	auth.POST("/login",authhandler.Login)
 

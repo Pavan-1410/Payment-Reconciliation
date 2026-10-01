@@ -1,0 +1,403 @@
+basePath: /
+definitions:
+  dto.CreatePaymentRequest:
+    properties:
+      amount:
+        example: "500.00"
+        type: string
+      idempotency_key:
+        example: PAY-TEST-001
+        type: string
+    required:
+    - amount
+    - idempotency_key
+    type: object
+  dto.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        example: pavan@example.com
+        type: string
+      password:
+        example: "123456"
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.PaymentResponce:
+    properties:
+      amount:
+        type: string
+      id:
+        type: integer
+      idempotency_key:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  dto.ProviderReportRequest:
+    properties:
+      report_id:
+        type: string
+      transaction:
+        items:
+          $ref: '#/definitions/dto.ProviderReportTransactionRequest'
+        type: array
+    required:
+    - report_id
+    - transaction
+    type: object
+  dto.ProviderReportTransactionRequest:
+    properties:
+      amount:
+        example: "500.00"
+        type: string
+      provider_ref:
+        example: TXN-1-1
+        type: string
+      status:
+        example: successful
+        type: string
+    required:
+    - amount
+    - provider_ref
+    - status
+    type: object
+  dto.ProviderTransactionResponse:
+    properties:
+      attempt_number:
+        type: integer
+      failure_reason:
+        type: string
+      id:
+        type: integer
+      payment_id:
+        type: integer
+      provider_ref:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        example: pavan@example.com
+        type: string
+      name:
+        example: Pavan Sonawane
+        type: string
+      password:
+        example: "123456"
+        minLength: 2
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  dto.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      is_admin:
+        type: boolean
+      name:
+        type: string
+    type: object
+  models.ReconciliationJob:
+    properties:
+      completedAt:
+        type: string
+      createdAt:
+        type: string
+      error:
+        description: "failed to load provider transactions\tTechnical failure of the
+          reconciliation process"
+        type: string
+      id:
+        type: integer
+      startedAt:
+        type: string
+      status:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for payment processing and reconciliation.
+  title: Payment Processing & Reconciliation API
+  version: "1.0"
+paths:
+  /api/auth/:
+    get:
+      description: Returns a welcome message for the API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Welcome to Payment Reconciliation API
+      tags:
+      - 1. General
+  /api/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Login user
+      tags:
+      - 2. Authentication
+  /api/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - 2. Authentication
+  /api/payment/create:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new payment request for the authenticated user
+      parameters:
+      - description: Payment details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePaymentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.PaymentResponce'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a payment
+      tags:
+      - 3. Payments
+  /api/provider/report:
+    post:
+      consumes:
+      - application/json
+      description: Imports simulated payment provider transaction records for reconciliation
+      parameters:
+      - description: Provider report details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProviderReportRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ProviderReportRequest'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Import provider report
+      tags:
+      - 5. Provider Reports
+  /api/reconcil/{report_id}:
+    post:
+      consumes:
+      - application/json
+      description: Compares provider report transactions with internal payment records
+        and generates reconciliation results
+      parameters:
+      - default: REPORT-001
+        description: Provider Report ID
+        in: path
+        name: report_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReconciliationJob'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Reconcile provider report
+      tags:
+      - 6. Reconciliation
+  /api/transaction/{id}/{change}/:
+    post:
+      consumes:
+      - application/json
+      description: Processes a pending payment and updates its status
+      parameters:
+      - default: 3
+        description: Payment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: success
+        description: Change Status to
+        enum:
+        - success
+        - fail
+        in: path
+        name: change
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProviderTransactionResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Process a payment
+      tags:
+      - 4. Transaction
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -12,6 +12,20 @@ type PaymentHandler struct {
 	PaymentService *services.PaymentService
 }
 
+// CreatePayment godoc
+// @Summary Create a payment
+// @Description Creates a new payment request for the authenticated user
+// @Tags 3. Payments
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body dto.CreatePaymentRequest true "Payment details"
+// @Success 201 {object} dto.PaymentResponce
+// @Failure 400 {object} dto.ErrorResponse
+// @Failure 401 {object} dto.ErrorResponse
+// @Failure 409 {object} dto.ErrorResponse
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /api/payment/create [post]
 func (h *PaymentHandler) CreatePayment (c *gin.Context){
 
 	userIDValue, exists := c.Get("user_id")
