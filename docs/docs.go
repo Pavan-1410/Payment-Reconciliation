@@ -616,9 +616,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "https://payment-reconciliatio-api.onrender.com",
 	BasePath:         "/",
-	Schemes:          []string{},
+	Schemes:          []string{"https"},
 	Title:            "Payment Processing & Reconciliation API",
 	Description:      "REST API for payment processing and reconciliation.",
 	InfoInstanceName: "swagger",

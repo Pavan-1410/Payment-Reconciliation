@@ -139,7 +139,7 @@ definitions:
       updatedAt:
         type: string
     type: object
-host: localhost:8080
+host: https://payment-reconciliatio-api.onrender.com
 info:
   contact: {}
   description: REST API for payment processing and reconciliation.
@@ -395,6 +395,8 @@ paths:
       summary: Process a payment
       tags:
       - Transaction
+schemes:
+- https
 securityDefinitions:
   BearerAuth:
     in: header

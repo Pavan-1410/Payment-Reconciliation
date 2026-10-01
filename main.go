@@ -24,8 +24,9 @@ import (
 // @title Payment Processing & Reconciliation API
 // @version 1.0
 // @description REST API for payment processing and reconciliation.
-// @host localhost:8080
+// @host https://payment-reconciliatio-api.onrender.com
 // @BasePath /
+// @schemes https
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization

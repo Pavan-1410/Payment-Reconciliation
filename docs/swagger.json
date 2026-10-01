@@ -1,4 +1,7 @@
 {
+    "schemes": [
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "REST API for payment processing and reconciliation.",
@@ -6,7 +9,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "https://payment-reconciliatio-api.onrender.com",
     "basePath": "/",
     "paths": {
         "/api/auth/": {
