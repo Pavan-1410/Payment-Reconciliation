@@ -22,7 +22,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "1. General"
+                    "General"
                 ],
                 "summary": "Welcome to Payment Reconciliation API",
                 "responses": {
@@ -48,7 +48,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "2. Authentication"
+                    "Authentication"
                 ],
                 "summary": "Login user",
                 "parameters": [
@@ -100,7 +100,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "2. Authentication"
+                    "Authentication"
                 ],
                 "summary": "Register a new user",
                 "parameters": [
@@ -157,7 +157,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "3. Payments"
+                    "Payments"
                 ],
                 "summary": "Create a payment",
                 "parameters": [
@@ -220,7 +220,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "5. Provider Reports"
+                    "Provider Reports"
                 ],
                 "summary": "Import provider report",
                 "parameters": [
@@ -277,7 +277,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "6. Reconciliation"
+                    "Reconciliation"
                 ],
                 "summary": "Reconcile provider report",
                 "parameters": [
@@ -339,7 +339,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "4. Transaction"
+                    "Transaction"
                 ],
                 "summary": "Process a payment",
                 "parameters": [

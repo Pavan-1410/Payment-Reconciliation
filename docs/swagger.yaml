@@ -160,7 +160,7 @@ paths:
             type: object
       summary: Welcome to Payment Reconciliation API
       tags:
-      - 1. General
+      - General
   /api/auth/login:
     post:
       consumes:
@@ -194,7 +194,7 @@ paths:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Login user
       tags:
-      - 2. Authentication
+      - Authentication
   /api/auth/register:
     post:
       consumes:
@@ -228,7 +228,7 @@ paths:
             $ref: '#/definitions/dto.ErrorResponse'
       summary: Register a new user
       tags:
-      - 2. Authentication
+      - Authentication
   /api/payment/create:
     post:
       consumes:
@@ -268,7 +268,7 @@ paths:
       - BearerAuth: []
       summary: Create a payment
       tags:
-      - 3. Payments
+      - Payments
   /api/provider/report:
     post:
       consumes:
@@ -304,7 +304,7 @@ paths:
       - BearerAuth: []
       summary: Import provider report
       tags:
-      - 5. Provider Reports
+      - Provider Reports
   /api/reconcil/{report_id}:
     post:
       consumes:
@@ -345,7 +345,7 @@ paths:
       - BearerAuth: []
       summary: Reconcile provider report
       tags:
-      - 6. Reconciliation
+      - Reconciliation
   /api/transaction/{id}/{change}/:
     post:
       consumes:
@@ -394,7 +394,7 @@ paths:
       - BearerAuth: []
       summary: Process a payment
       tags:
-      - 4. Transaction
+      - Transaction
 securityDefinitions:
   BearerAuth:
     in: header
