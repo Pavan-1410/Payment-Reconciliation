@@ -144,7 +144,7 @@ info:
   contact: {}
   description: REST API for payment processing and reconciliation.
   title: Payment Processing & Reconciliation API
-  version: "1.0"
+  version: 1.0.1
 paths:
   /api/auth/:
     get:

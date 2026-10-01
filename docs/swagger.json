@@ -7,7 +7,7 @@
         "description": "REST API for payment processing and reconciliation.",
         "title": "Payment Processing \u0026 Reconciliation API",
         "contact": {},
-        "version": "1.0"
+        "version": "1.0.1"
     },
     "host": "https://payment-reconciliatio-api.onrender.com",
     "basePath": "/",
