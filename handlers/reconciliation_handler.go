@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 
-	"payment_reconciliation/models"
 	"payment_reconciliation/services"
 	"payment_reconciliation/workers"
 
@@ -40,7 +39,7 @@ func (h *ReconciliationHandler) Reconcile(c *gin.Context) {
 		return
 	}
 
-	job, err := h.ReconciliationService.StartReconciliation(reportID)
+	job, reportTransactions, err := h.ReconciliationService.StartReconciliation(reportID)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -50,13 +49,13 @@ func (h *ReconciliationHandler) Reconcile(c *gin.Context) {
 	}
 	h.WorkerPool.Submit(
 		workers.ReconciliationJobData{
-			Job:              job,
-			ReportTransactions:[]models.ProviderReportTransaction{},
+			Job:                job,
+			ReportTransactions: reportTransactions,
 		},
 	)
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": "reconciliation completed successfully",
+		"message": "reconciliation started",
 		"job":     job,
 	})
 }

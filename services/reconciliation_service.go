@@ -18,14 +18,13 @@ type ReconciliationService struct {
 	ProviderTransactionRepo *repository.ProviderTransactionRepository
 }
 
-func (s *ReconciliationService) StartReconciliation(reportID string) (*models.ReconciliationJob, error) {
-	// Check that the report exists
+func (s *ReconciliationService) StartReconciliation(reportID string) (*models.ReconciliationJob, []models.ProviderReportTransaction, error) {
 	reportTransactions, err := s.ProviderReportRepo.FindbyReportID(reportID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if len(reportTransactions) == 0 {
-		return nil, fmt.Errorf("no transactions found for report %q", reportID)
+		return nil, nil, fmt.Errorf("no transactions found for report %q", reportID)
 	}
 
 	startTime := time.Now()
@@ -34,98 +33,73 @@ func (s *ReconciliationService) StartReconciliation(reportID string) (*models.Re
 		StartedAt: &startTime,
 	}
 	if err := s.JobRepo.CreateJob(job); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	    
-	ctx, cancel := context.WithTimeout(
-        context.Background(),
-        30*time.Second,
-    )
-
-	go func() {
-    defer cancel()
-		s.ProcessReconciliation( ctx, job, reportTransactions )
-    }()
-
-
-	return job,nil
-
+	return job, reportTransactions, nil
 }
 
-func(s *ReconciliationService) ProcessReconciliation(ctx context.Context, job *models.ReconciliationJob,reportTransactions []models.ProviderReportTransaction){
-	// Job has now started processing
+func (s *ReconciliationService) ProcessReconciliation(ctx context.Context, job *models.ReconciliationJob, reportTransactions []models.ProviderReportTransaction) {
 	job.Status = "processing"
-
 	if err := s.JobRepo.UpdateJob(job); err != nil {
+		s.failJob(job, err)
 		return
 	}
+
 	results := make([]models.ReconciliationResult, 0, len(reportTransactions))
-
-		for _, reportTransaction := range reportTransactions {
-			    select {
-   		 			case <-ctx.Done():
-        			s.failJob(job, ctx.Err())
-        				return
-					default:	
-						eachDbTransaction, err := s.ProviderTransactionRepo.FindByProviderRef(reportTransaction.ProviderRef)
-						if errors.Is(err, gorm.ErrRecordNotFound) {
-							results = append(results, models.ReconciliationResult{
-								ReconciliationJobID:         job.ID,
-								ProviderReportTransactionID: reportTransaction.ID,
-								ProviderTransactionID:       nil,
-								Result:                      "missing internal payment",
-								Details:                     "provider transaction not found internally",
-							})
-							continue
-						}
-
-						if !reportTransaction.Amount.Equal(eachDbTransaction.Payment.Amount) {
-							results = append(results, models.ReconciliationResult{
-								ReconciliationJobID:         job.ID,
-								ProviderReportTransactionID: reportTransaction.ID,
-								ProviderTransactionID:       &eachDbTransaction.ID,
-								Result:                      "amount_mismatched",
-								Details:                     "provider amount does not match internal amount",
-							})
-							continue
-						}
-
-						if reportTransaction.Status != eachDbTransaction.Status {
-							results = append(results, models.ReconciliationResult{
-								ReconciliationJobID:         job.ID,
-								ProviderReportTransactionID: reportTransaction.ID,
-								ProviderTransactionID:       &eachDbTransaction.ID,
-								Result:                      "status_mismatch",
-								Details:                     "provider status does not match internal status",
-							})
-							continue
-						}
-
-						results = append(results, models.ReconciliationResult{
-							ReconciliationJobID:         job.ID,
-							ProviderReportTransactionID: reportTransaction.ID,
-							ProviderTransactionID:       &eachDbTransaction.ID,
-							Result:                      "matched",
-							Details:                     "provider transaction matches internal transaction",
-						})
-											// Save results
-					if err := s.ResultRepo.CreateResults(results); err != nil {
-						s.failJob(job, err)
-						return
-					}
-
-					// Complete job
-					completedAt := time.Now()
-
-					job.Status = "completed"
-					job.CompletedAt = &completedAt
-
-					if err := s.JobRepo.UpdateJob(job); err != nil {
-						return
-					}
-				}
-			}
+	for _, reportTransaction := range reportTransactions {
+		select {
+		case <-ctx.Done():
+			s.failJob(job, ctx.Err())
+			return
+		default:
 		}
+
+		internalTransaction, err := s.ProviderTransactionRepo.FindByProviderRef(reportTransaction.ProviderRef)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			results = append(results, models.ReconciliationResult{
+				ReconciliationJobID:         job.ID,
+				ProviderReportTransactionID: reportTransaction.ID,
+				Result:                      "missing internal payment",
+				Details:                     "provider transaction not found internally",
+			})
+			continue
+		}
+		if err != nil {
+			s.failJob(job, err)
+			return
+		}
+
+		result := models.ReconciliationResult{
+			ReconciliationJobID:         job.ID,
+			ProviderReportTransactionID: reportTransaction.ID,
+			ProviderTransactionID:       &internalTransaction.ID,
+		}
+		switch {
+		case !reportTransaction.Amount.Equal(internalTransaction.Payment.Amount):
+			result.Result = "amount_mismatched"
+			result.Details = "provider amount does not match internal amount"
+		case reportTransaction.Status != internalTransaction.Status:
+			result.Result = "status_mismatch"
+			result.Details = "provider status does not match internal status"
+		default:
+			result.Result = "matched"
+			result.Details = "provider transaction matches internal transaction"
+		}
+		results = append(results, result)
+	}
+
+	if err := s.ResultRepo.CreateResults(results); err != nil {
+		s.failJob(job, err)
+		return
+	}
+
+	completedAt := time.Now()
+	job.Status = "completed"
+	job.CompletedAt = &completedAt
+	if err := s.JobRepo.UpdateJob(job); err != nil {
+		s.failJob(job, err)
+	}
+}
 
 func (s *ReconciliationService) failJob(job *models.ReconciliationJob, cause error) error {
 	job.Status = "failed"
